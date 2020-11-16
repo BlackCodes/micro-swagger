@@ -1,0 +1,191 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "example/example.proto",
+    "version": "version not set"
+  },
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/open/launch": {
+      "post": {
+        "summary": "接口名称（必填）\n关于入参和出参，需要注意，入参名一定是方法名+Req,出参名一定是方法名+Rsp,不可自定义；\n如Launch接口，它的入参message名称应该定义为：LaunchReq，返回参数message名称应该定义成：LaunchRsp",
+        "description": "接口名称（必填）\n关于入参和出参，需要注意，入参名一定是方法名+Req,出参名一定是方法名+Rsp,不可自定义；\n如Launch接口，它的入参message名称应该定义为：LaunchReq，返回参数message名称应该定义成：LaunchRsp",
+        "operationId": "op_Launch",
+        "responses": {
+          "200": {
+            "description": "返回body体",
+            "schema": {
+              "$ref": "#/definitions/apiLaunchRsp"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "uid",
+            "description": "6994",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "format": "string"
+          },
+          {
+            "name": "Object",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/apiLaunchReq"
+            }
+          }
+        ],
+        "tags": [
+          "OpenApi"
+        ],
+        "produces": [
+          "application/json"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "apiLaunchReq": {
+      "type": "object",
+      "properties": {
+        "accountId": {
+          "type": "string",
+          "example": 300,
+          "default": "0",
+          "description": "字段注释",
+          "title": "字段注释"
+        },
+        "amount": {
+          "type": "integer",
+          "format": "int64",
+          "description": "传入金额 单位分",
+          "title": "传入金额 单位分"
+        },
+        "orderId": {
+          "type": "string",
+          "description": "订单号 长度20-50位",
+          "title": "订单号 长度20-50位"
+        }
+      },
+      "required": [
+        "accountId"
+      ]
+    },
+    "apiLaunchRsp": {
+      "type": "object",
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "跳转地址",
+          "title": "跳转地址"
+        }
+      }
+    },
+    "apiPair": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "apiRequest": {
+      "type": "object",
+      "properties": {
+        "method": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "header": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/apiPair"
+          }
+        },
+        "get": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/apiPair"
+          }
+        },
+        "post": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/apiPair"
+          }
+        },
+        "body": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        }
+      },
+      "title": "A HTTP request as RPC\nForward by the api handler"
+    },
+    "apiResponse": {
+      "type": "object",
+      "properties": {
+        "statusCode": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "header": {
+          "type": "object",
+          "additionalProperties": {
+            "$ref": "#/definitions/apiPair"
+          }
+        },
+        "body": {
+          "type": "string"
+        }
+      },
+      "title": "A HTTP response as RPC\nExpected response for the api handler"
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "typeUrl": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string",
+          "format": "byte"
+        }
+      }
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}

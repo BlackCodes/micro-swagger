@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+package Open.api;
+
+// 命令参数使用方法：   --openapiv2_out=options_server="文档服务器地址(10.4.60.129)",options_server_port=文档服务端口(9099),api_prefix=路径前缀,project=项目名称(必填):.
+import "options/microOption.proto"; // 导入options自定义pb
+import "github.com/micro/go-micro/v2/api/proto/api.proto";
+import "github.com/mwitkow/go-proto-validators/validator.proto";
+
+option go_package ="";
+
+service Open {
+  // 定义接口所属哪个分类，如果没有，则用serviceName（可选）
+  option (options.category) = "OpenApi";
+  // 接口名称（必填）
+  // 关于入参和出参，需要注意，入参名一定是方法名+Req,出参名一定是方法名+Rsp,不可自定义；
+  // 如Launch接口，它的入参message名称应该定义为：LaunchReq，返回参数message名称应该定义成：LaunchRsp
+  rpc Launch (go.api.Request) returns (go.api.Response) {
+         option(options.hkv) = {
+              // 设置请求头header中的字段
+              headerMap:[{key:"uid",value:"6994"}]
+         };
+  }
+  rpc Exit (go.api.Request) returns (go.api.Response){
+         option(options.hkv).ignore = true;
+  }
+}
+
+message LaunchReq {
+  // 字段注释
+  string accountId = 1 [(options.field)={optionsRequired:true, optionsDefault:"0",optionsExample:"300"}]; // (字段释意，参照pb文件)
+
+  // 传入金额 单位分
+  int64 amount = 2;
+
+  // 订单号 长度20-50位
+  string orderId = 3 [(validator.field) = {length_gt: 19, length_lt: 51}];
+}
+
+
+
+message LaunchRsp {
+  // 跳转地址
+  string url = 1;
+}
+

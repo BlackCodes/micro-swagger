@@ -1,0 +1,40 @@
+syntax = "proto3";
+import "google/protobuf/descriptor.proto";
+option go_package = "options";
+package options;
+
+extend google.protobuf.ServiceOptions {
+
+    // 接口所属的分类
+    string category = 40000;
+    // 接口前缀定义
+    string apiPrefix = 40001;
+}
+
+extend google.protobuf.FieldOptions {
+    optionsField field = 40002;
+}
+
+extend google.protobuf.MethodOptions {
+    optionsMethod hkv = 40003;
+}
+
+
+message optionsMethod{
+    // 定义header
+    map <string,string> headerMap = 1;
+
+    // 是否忽略当前方法
+    bool ignore = 2;
+}
+message optionsField {
+
+    // 字段是否必选
+    bool optionsRequired = 1;
+
+    // 字段默认值
+    string optionsDefault = 2;
+
+    // 字段例子
+    bytes optionsExample = 3;
+}
