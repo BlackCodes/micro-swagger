@@ -23,7 +23,7 @@
 
    ```protobuf
    service User {
-   	  option (options.category) = "接口所属分类";
+       option (options.category) = "接口所属分类";
        option (options.apiPrefix) = "接口前缀";
    }
    ```
@@ -34,10 +34,10 @@
    service User{
     		// 此处为接口名称（必填）
        rpc GetCaptcha(go.api.Request) returns(go.api.Response) {
-       		option (options.hkv) = {
-                 // 设置此接口header中的必字段
-                 headerMap:[{key:"字段名",value:"默认值"}]
-            };
+       	option (options.hkv) = {
+		 // 设置此接口header中的必字段
+		headerMap:[{key:"字段名",value:"默认值"}]
+         };
        }
    }
    ```
@@ -93,7 +93,7 @@ service User {
 
     // 此处为接口名称（必填）
     rpc GetCaptcha(go.api.Request) returns(go.api.Response) {
-    		option (options.hkv) = {
+    	option (options.hkv) = {
               // 设置此接口header中的必字段
               headerMap:[{key:"字段名",value:"默认值"}]
          };
