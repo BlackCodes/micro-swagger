@@ -20,7 +20,6 @@ var (
 	importPrefix               = flag.String("import_prefix", "", "prefix to be added to go package paths for imported proto files")
 	file                       = flag.String("file", "-", "where to load data from")
 	allowDeleteBody            = flag.Bool("allow_delete_body", false, "unless set, HTTP DELETE methods may not have a body")
-	grpcAPIConfiguration       = flag.String("grpc_api_configuration", "", "path to gRPC API Configuration in YAML format")
 	allowMerge                 = flag.Bool("allow_merge", false, "if set, generation one OpenAPI file out of multiple protos")
 	mergeFileName              = flag.String("merge_file_name", "apioptionss", "target OpenAPI file name prefix after merge")
 	useJSONNamesForFields      = flag.Bool("json_names_for_fields", true, "if disabled, the original proto name will be used for generating OpenAPI definitions")
@@ -33,7 +32,6 @@ var (
 	disableDefaultErrors       = flag.Bool("disable_default_errors", false, "if set, disables generation of default errors. This is useful if you have defined custom error handling")
 	enumsAsInts                = flag.Bool("enums_as_ints", false, "whether to render enum values as integers, as opposed to string values")
 	simpleOperationIDs         = flag.Bool("simple_operation_ids", false, "whether to remove the service prefix in the operationID generation. Can introduce duplicate operationIDs, use with caution.")
-	openAPIConfiguration       = flag.String("openapi_configuration", "", "path to OpenAPI Configuration in YAML format")
 	generateUnboundMethods     = flag.Bool("generate_unbound_methods", false, "generate swagger metadata even for RPC methods that have no HttpRule annotation")
 	optionsServerPort          = flag.Int64("doc_server_port", 9099, "generate swagger optionsument push to remote options server")
 	optionsServer              = flag.String("doc_server", "0.0.0.0", "generate swagger optionsument push to remote options server")
@@ -114,14 +112,6 @@ func main() {
 	for k, v := range pkgMap {
 		reg.AddPkgMap(k, v)
 	}
-
-	if *grpcAPIConfiguration != "" {
-		if err := reg.LoadGrpcAPIServiceFromYAML(*grpcAPIConfiguration); err != nil {
-			emitError(err)
-			return
-		}
-	}
-
 	g := genopenapi.New(reg)
 
 	if err := genopenapi.AddErrorDefs(reg); err != nil {
@@ -132,13 +122,6 @@ func main() {
 	if err := reg.Load(req); err != nil {
 		emitError(err)
 		return
-	}
-
-	if *openAPIConfiguration != "" {
-		if err := reg.LoadOpenAPIConfigFromYAML(*openAPIConfiguration); err != nil {
-			emitError(err)
-			return
-		}
 	}
 
 	var targets []*descriptor.File
