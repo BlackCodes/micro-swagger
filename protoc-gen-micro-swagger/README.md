@@ -8,7 +8,7 @@
 
 - proto扩展文件`microOption.proto`,需要将这个文件放入到**$GOPATH/github.com/BlackCodes/micro-swagger/protoc-gen-micro-swagger/options/** 下面
 - swagger服务器，默认地址：127.0.0.1，端口：9099,服务器主要用来保存swagger生成的代码，为yapi服务提供调用，如只需本地生成，此后以几项ignore.
-- 注册文档服务器帐号,文档服务器使用Y-Api，去哪儿开源的一个牛xx文档管理工具 [url]https://github.com/ymfe/yapi
+- 注册文档服务器帐号,文档服务器使用Y-Api，去哪儿开源的一个牛xx文档管理工具 https://github.com/ymfe/yapi
 
 ### 开发
 
@@ -23,7 +23,7 @@
 
    ```protobuf
    service User {
-   	  option (options.category) = "接口所属分类";
+       option (options.category) = "接口所属分类";
        option (options.apiPrefix) = "接口前缀";
    }
    ```
@@ -34,10 +34,10 @@
    service User{
     		// 此处为接口名称（必填）
        rpc GetCaptcha(go.api.Request) returns(go.api.Response) {
-       		option (options.hkv) = {
-                 // 设置此接口header中的必字段
-                 headerMap:[{key:"字段名",value:"默认值"}]
-            };
+       	option (options.hkv) = {
+		 // 设置此接口header中的必字段
+		headerMap:[{key:"字段名",value:"默认值"}]
+         };
        }
    }
    ```
@@ -88,12 +88,12 @@ syntax = "proto3";
 import "github.com/BlackCodes/micro-swagger/protoc-gen-micro-swagger/options/microOption.proto";
 
 service User {
-	option (options.category) = "接口所属分类";
+    option (options.category) = "接口所属分类";
     option (options.apiPrefix) = "接口前缀";
 
     // 此处为接口名称（必填）
     rpc GetCaptcha(go.api.Request) returns(go.api.Response) {
-    		option (options.hkv) = {
+    	option (options.hkv) = {
               // 设置此接口header中的必字段
               headerMap:[{key:"字段名",value:"默认值"}]
          };
