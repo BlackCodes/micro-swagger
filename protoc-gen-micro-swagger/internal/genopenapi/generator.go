@@ -218,7 +218,7 @@ func (g *generator) Generate(targets []*descriptor.File) ([]*descriptor.Response
 			}
 			// send to options server
 			if server := g.reg.GetoptionsServer(); len(server) > 0 && !strings.Contains(server, "0.0.0.0") {
-				uri := fmt.Sprintf("http://%s/push/options", g.reg.GetoptionsServer())
+				uri := fmt.Sprintf("http://%s/push/doc", g.reg.GetoptionsServer())
 				data := map[string]string{
 					"fileName": f.GetName(),
 					"content":  f.GetContent(),
