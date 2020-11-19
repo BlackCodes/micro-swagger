@@ -22,6 +22,7 @@ const (
 )
 
 type Swagger struct {
+	prePath  string
 }
 
 func NewSwagger() *Swagger {
@@ -66,7 +67,6 @@ func (s *Swagger) Push(c *gin.Context) {
 		return
 	}
 	logger.Infof("the push file ProjectName:%s,FileName:%v", req.Project, req.FileName)
-	logger.Debugf("receive msg:%v", req.Content)
 	dir := s.getPath("", "")
 	if len(req.Project) == 0 {
 		c.AbortWithError(504, fmt.Errorf("project name empty"))
@@ -80,6 +80,8 @@ func (s *Swagger) Push(c *gin.Context) {
 	if err != nil {
 		return
 	}
+	s.detectPrePath(swagger)
+	swagger = s.setUnion(swagger)
 	newStoreName := s.getNewFileName(swagger.Paths, req.FileName)
 	lock.Lock()
 	defer lock.Unlock()
@@ -94,7 +96,6 @@ func (s *Swagger) Push(c *gin.Context) {
 		return
 	}
 	newSwagerPath := s.getPath(req.Project, newStoreName)
-	logger.Infof("the new newSwagger Path:%v ", newSwagerPath)
 	if err := s.WriteTo(newSwagerPath, swagger); err != nil {
 		logger.Errorf("write to file %v", err)
 		return
@@ -131,6 +132,56 @@ func (s *Swagger) loadSwg(filePath string) (*openapiSwaggerObject, error) {
 
 }
 
+func (s *Swagger) setUnion(swg *openapiSwaggerObject) *openapiSwaggerObject {
+	if len(s.prePath) == 0 {
+		return swg
+	}
+	modify := make(map[string]string )
+	for _,path := range swg.Paths{
+		for _,item := range path.Post.Parameters{
+			if item.Schema != nil &&  !strings.Contains(item.Schema.Ref,s.prePath) {
+				newKey := fmt.Sprintf("%s_%s",item.Schema.Ref,s.prePath)
+				lastKey := item.Schema.Ref[strings.LastIndex(item.Schema.Ref,"/")+1:]
+				modify[lastKey] = fmt.Sprintf("%s_%s",lastKey,s.prePath)
+				item.Schema.Ref = newKey
+			}
+		}
+		for key, item := range path.Post.Responses{
+			if !strings.Contains(item.Schema.Ref,s.prePath) {
+				newKey := fmt.Sprintf("%s_%s",item.Schema.Ref,s.prePath)
+				lastKey := item.Schema.Ref[strings.LastIndex(item.Schema.Ref,"/")+1:]
+				modify[lastKey] = fmt.Sprintf("%s_%s",lastKey,s.prePath)
+				item.Schema.Ref = newKey
+				path.Post.Responses[key] = item
+			}
+		}
+	}
+	for key ,item := range swg.Definitions{
+		if len(item.Ref) > 0 {
+			refKey := item.Ref[strings.LastIndex(item.Ref,"/"):]
+			if s,ok := modify[refKey];ok {
+				item.Ref = s
+			}
+		}
+		if s,ok := modify[key];ok {
+			swg.Definitions[s] = item
+			delete(swg.Definitions,key)
+		}
+	}
+	return swg
+}
+
+func (s *Swagger) detectPrePath(swg *openapiSwaggerObject)   {
+	k := ""
+	for key,_ := range swg.Paths{
+		arr := strings.Split(key,"/" )
+		if len(k) == 0 && len(arr)!=0 {
+			k = arr[1]
+			break
+		}
+	}
+	s.prePath = k
+}
 func (s *Swagger) mergeMsg(project string, newPathName string, swg *openapiSwaggerObject) (*openapiSwaggerObject, error) {
 	basePath := s.getPath(project, BaseFile)
 	baseSwg, err := s.loadSwg(basePath)
@@ -204,7 +255,7 @@ func (s *Swagger) PathsMerge(delPath map[string]struct{}, base, new openapiPaths
 			newBase[nk] = nv
 		}
 	}
-	return &base
+	return &newBase
 }
 
 func (s *Swagger) WriteTo(path string, swg *openapiSwaggerObject) error {
@@ -217,14 +268,16 @@ func (s *Swagger) WriteTo(path string, swg *openapiSwaggerObject) error {
 	if err := json.Unmarshal(b, &_swg); err != nil {
 		return err
 	}
-	f, err := os.OpenFile(path, os.O_CREATE|os.O_RDWR, 0666)
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_TRUNC, 0755)
 	if err != nil {
 		return err
 	}
 	defer f.Close()
-	f.Write(b)
-	f.Sync()
-	return nil
+	_,err = f.Write(b)
+	if err !=nil {
+		f.Sync()
+	}
+	return err
 }
 
 func (s *Swagger) getPath(projectName, fileName string) string {
